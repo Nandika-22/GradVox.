@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>GradVox Feedback</title>
+
+<link rel="stylesheet" href="/static/style.css">
+
+</head>
+
+<body>
+
+<div class="feedback-container">
+
+<h1>GradVox Feedback</h1>
+
+<p>Rate your interview experience</p>
+
+<form action="/submit_feedback" method="POST">
+
+<div class="stars">
+
+<span class="star" onclick="rate(1)">★</span>
+<span class="star" onclick="rate(2)">★</span>
+<span class="star" onclick="rate(3)">★</span>
+<span class="star" onclick="rate(4)">★</span>
+<span class="star" onclick="rate(5)">★</span>
+
+<br>
+</br>
+
+</div>
+
+<input type="hidden" id="rating" name="rating">
+
+<textarea name="feedback" placeholder="Write your suggestion"></textarea>
+
+<br><br>
+
+<button type="submit" onclick="submitFeedback()">Submit Feedback</button>
+
+</form>
+
+</div>
+
+<script>
+
+function rate(n){
+
+let stars=document.querySelectorAll(".star");
+
+document.getElementById("rating").value=n;
+
+stars.forEach((s,i)=>{
+
+if(i<n){
+s.style.color="gold";
+}else{
+s.style.color="gray";
+}
+
+});
+
+}
+
+function submitFeedback(){
+
+alert("Thank you for your feedback!");
+
+let speech=new SpeechSynthesisUtterance(
+"Thank you for using GradVox. See you again."
+);
+
+speechSynthesis.speak(speech);
+
+}
+
+</script>
+
+</body>
+</html>

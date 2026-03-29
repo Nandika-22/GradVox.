@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GradVox | Professional AI Recruitment Coach</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --primary-bg: #1a1a1b;
+            --meet-bar-bg: #202124;
+            --accent-green: #34a853;
+            --accent-red: #ea4335;
+            --accent-glow: #faff69;
+            --text-main: #e8eaed;
+            --card-glass: rgba(32, 33, 36, 0.7);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body,
+        html {
+            font-family: 'Outfit', sans-serif;
+            background-color: #000;
+            height: 100vh;
+            width: 100vw;
+            margin: 0;
+            overflow: hidden;
+            color: var(--text-main);
+        }
+
+        /* 🔄 Layout Container */
+        .app-container {
+            display: grid;
+            grid-template-rows: 80px 1fr 100px;
+            height: 100vh;
+            width: 100vw;
+            position: relative;
+            background: #000;
+        }
+
+        /* 📊 Top Info Bar */
+        .top-info-bar {
+            grid-row: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 40px;
+            z-index: 100;
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), transparent);
+        }
+
+        .brand-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+            font-size: 1.2rem;
+            letter-spacing: 0.5px;
+        }
+
+        .brand-section i {
+            color: var(--accent-glow);
+        }
+
+        .session-metrics {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .metric-pill {
+            background: var(--card-glass);
+            padding: 8px 16px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.9rem;
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .metric-pill i {
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        /* 🎯 Main Stage (Dynamic Layout) */
+        .stage-view {
+            grid-row: 2;
+            display: flex;
+            position: relative;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            gap: 20px;
+            padding: 20px;
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .view-panel {
+            position: relative;
+            border-radius: 20px;
+            overflow: hidden;
+            background: #111;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Full Screen by default */
+        .ai-panel {
+            flex: 1;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: url('/static/interviewer_pro.jpg') center top / cover no-repeat;
+        }
+
+        .user-panel {
+            flex: 0;
+            /* Hidden by default */
+            height: 100%;
+            display: none;
+            background: #1a1a1b;
+        }
+
+        /* Split View Mode */
+        .camera-active .user-panel {
+            flex: 1;
+            display: block;
+        }
+
+        .camera-active .ai-panel {
+            flex: 1;
+        }
+
+        /* 📸 Internal Labels */
+        .panel-label {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            z-index: 10;
+        }
+
+        /* 💬 Question Display (Netflix Style) */
+        .question-subtitle-box {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            max-width: 800px;
+            text-align: center;
+            z-index: 50;
+        }
+
+        .subtitle-text {
+            display: inline-block;
+            background: rgba(0, 0, 0, 0.85);
+            padding: 18px 32px;
+            border-radius: 16px;
+            font-size: 1.5rem;
+            font-weight: 500;
+            line-height: 1.4;
+            color: #fff;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 1);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 2px solid transparent;
+        }
+
+        .subtitle-text.user-active {
+            border-color: var(--accent-green);
+            box-shadow: 0 0 30px rgba(52, 168, 83, 0.3);
+            background: rgba(20, 20, 25, 0.95);
+        }
+
+        .subtitle-text.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* 📊 Question Floating Card (Alternate) */
+        .question-card {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--card-glass);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            padding: 10px 20px;
+            border-radius: 16px;
+            text-align: center;
+            z-index: 60;
+            min-width: 250px;
+        }
+
+        .card-header {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.5);
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .card-content {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        /* 🎛️ Bottom Control Bar (Meet Inspired) */
+        .bottom-control-bar {
+            grid-row: 3;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 30px;
+            background: var(--meet-bar-bg);
+            z-index: 100;
+        }
+
+        .controls-left {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .controls-center {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .controls-right {
+            flex: 1;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-meet {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #3c4043;
+            border: none;
+            color: #fff;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+
+        .btn-meet:hover {
+            background: #4a4e51;
+            transform: translateY(-2px);
+        }
+
+        .btn-meet.active {
+            background: var(--accent-red);
+        }
+
+        .btn-meet.success {
+            background: var(--accent-green);
+            box-shadow: 0 0 20px rgba(52, 168, 83, 0.4);
+        }
+
+        .btn-meet.highlight {
+            animation: pulse-green 1.5s infinite;
+            background: var(--accent-green);
+        }
+
+        @keyframes pulse-green {
+            0% {
+                box-shadow: 0 0 0 0 rgba(52, 168, 83, 0.7);
+            }
+
+            70% {
+                box-shadow: 0 0 0 15px rgba(52, 168, 83, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(52, 168, 83, 0);
+            }
+        }
+
+        .btn-end {
+            background: var(--accent-red);
+            padding: 10px 24px;
+            border-radius: 12px;
+            border: none;
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-end:hover {
+            background: #d93025;
+        }
+
+        /* 🎤 Mic Animation / Waveform */
+        .waveform-container {
+            display: none;
+            align-items: center;
+            gap: 3px;
+            height: 20px;
+            margin-right: 15px;
+        }
+
+        .wave-bar {
+            width: 3px;
+            background: var(--accent-glow);
+            border-radius: 10px;
+            animation: waveBounce 0.5s infinite alternate;
+        }
+
+        @keyframes waveBounce {
+            from {
+                height: 4px;
+            }
+
+            to {
+                height: 18px;
+            }
+        }
+
+        /* 🎧 Floating Feedback */
+        #feedbackToast {
+            position: absolute;
+            top: 100px;
+            right: 40px;
+            background: rgba(255, 255, 255, 0.95);
+            color: #000;
+            padding: 12px 25px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            font-weight: 600;
+            display: none;
+            transform: translateX(100px);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 1000;
+        }
+
+        #feedbackToast.show {
+            display: block;
+            transform: translateX(0);
+        }
+
+        /* 👗 AI Face Animation */
+        .ai-face-overlay {
+            position: absolute;
+            inset: 0;
+            z-index: 5;
+            pointer-events: none;
+            background: transparent;
+        }
+
+        /* Generic blinking eyes and nodding animations */
+        .blinking {
+            animation: blinkEffect 6s infinite;
+        }
+
+        @keyframes blinkEffect {
+
+            0%,
+            95%,
+            100% {
+                transform: scaleY(1);
+            }
+
+            97% {
+                transform: scaleY(0.1);
+            }
+        }
+
+        .nodding {
+            animation: nodEffect 10s infinite;
+        }
+
+        @keyframes nodEffect {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(2px);
+            }
+        }
+
+        /* 🎥 User Video */
+        #userVideo {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1);
+        }
+
+        /* 🌀 Loading States */
+        #analyzingState {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+            gap: 20px;
+        }
+
+        .pulse-loader {
+            width: 60px;
+            height: 60px;
+            border: 4px solid var(--accent-glow);
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Speaking Glow */
+        .ai-panel.speaking::after {
+            content: '';
+            position: absolute;
+            top: 40%;
+            left: 50%;
+            width: 80px;
+            height: 30px;
+            background: rgba(255, 255, 255, 0.2);
+            filter: blur(15px);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            animation: pulse-speaking 0.15s infinite alternate;
+        }
+
+        @keyframes pulse-speaking {
+            from {
+                transform: translate(-50%, -50%) scale(0.9);
+                opacity: 0.3;
+            }
+
+            to {
+                transform: translate(-50%, -50%) scale(1.3);
+                opacity: 0.8;
+            }
+        }
+
+        /* 🛠️ Settings Quick Menu */
+        .settings-overlay {
+            position: absolute;
+            bottom: 110px;
+            right: 30px;
+            width: 320px;
+            background: rgba(32, 33, 36, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 20px;
+            display: none;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 1000;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .settings-overlay.active {
+            display: flex;
+        }
+
+        .quick-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.2s;
+        }
+
+        .quick-card:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .card-info h4 {
+            font-size: 0.9rem;
+            margin-bottom: 2px;
+        }
+
+        .card-info p {
+            font-size: 0.75rem;
+            opacity: 0.6;
+        }
+
+        .btn-try {
+            background: var(--accent-glow);
+            color: #000;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .btn-try:hover {
+            opacity: 0.9;
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 768px) {
+            .app-container {
+                grid-template-rows: auto 1fr auto;
+            }
+            .top-info-bar {
+                padding: 15px 20px;
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+                background: rgba(0,0,0,0.9);
+            }
+            .session-metrics {
+                scale: 0.85;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            .stage-view {
+                flex-direction: column;
+                padding: 10px;
+            }
+            .ai-panel, .user-panel {
+                width: 100%;
+                flex: 1 !important;
+                height: 50%;
+            }
+            .user-panel {
+                display: none; /* Keep hidden unless cam active */
+            }
+            .camera-active .user-panel {
+                display: block;
+            }
+            .question-subtitle-box {
+                width: 95%;
+                bottom: 20px;
+            }
+            .subtitle-text {
+                font-size: 1.1rem;
+                padding: 12px 20px;
+            }
+            .bottom-control-bar {
+                padding: 15px 10px;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 15px;
+            }
+            .controls-center {
+                order: 1;
+                width: 100%;
+            }
+            .controls-left, .controls-right {
+                order: 2;
+                scale: 0.9;
+            }
+            .btn-meet {
+                width: 45px;
+                height: 45px;
+            }
+        }
+    </style>
+</head>
+
+<body id="mainBody">
+
+    <div class="app-container">
+
+        <!-- Top Info Bar -->
+        <header class="top-info-bar">
+            <div class="brand-section">
+                <i class="fas fa-microchip"></i> GRADVOX AI
+            </div>
+            <div class="session-metrics">
+                <div class="metric-pill">
+                    <i class="fas fa-layer-group"></i> Question <span id="qCount">1</span> / 10
+                </div>
+                <div class="metric-pill">
+                    <i class="fas fa-clock"></i> <span id="timer">00:00</span>
+                </div>
+                <div class="metric-pill">
+                    <i class="fas fa-bolt"></i> Difficulty: <span id="difficultyLabel">{{difficulty}}</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="stage-view" id="stage">
+
+            <div class="question-card" id="qCard">
+                <div class="card-header">Current Focus</div>
+                <div class="card-content" id="qSubject">Preparing Interview...</div>
+            </div>
+
+            <div class="view-panel ai-panel nodding" id="aiPanel">
+                <div class="ai-face-overlay"></div>
+                <div class="panel-label"><i class="fas fa-user-circle"></i> Coach Sarah | {{domain}}</div>
+
+                <!-- Netflix Style Subtitles -->
+                <div class="question-subtitle-box">
+                    <div class="subtitle-text" id="aiSubtitle">Welcome to GradVox. We'll start in a moment.</div>
+                </div>
+            </div>
+
+            <div class="view-panel user-panel" id="userPanel">
+                <video id="userVideo" autoplay playsinline muted></video>
+                <div class="panel-label"><i class="fas fa-user"></i> You</div>
+            </div>
+
+            <!-- Analyzing State Overlay -->
+            <div id="analyzingState">
+                <div class="pulse-loader"></div>
+                <div style="font-weight: 600; letter-spacing: 1px;">ANALYZING YOUR RESPONSE...</div>
+            </div>
+        </main>
+
+        <!-- Bottom Control Bar -->
+        <footer class="bottom-control-bar">
+            <div class="controls-left">
+                <div class="waveform-container" id="waveform">
+                    <div class="wave-bar" style="animation-delay: 0.1s;"></div>
+                    <div class="wave-bar" style="animation-delay: 0.3s;"></div>
+                    <div class="wave-bar" style="animation-delay: 0.2s;"></div>
+                    <div class="wave-bar" style="animation-delay: 0.4s;"></div>
+                    <div class="wave-bar" style="animation-delay: 0.1s;"></div>
+                </div>
+                <div id="interactionHint" style="font-size: 0.85rem; opacity: 0.6;">AI is speaking...</div>
+            </div>
+
+            <div class="controls-center">
+                <button class="btn-meet" id="micBtn" onclick="toggleMic()" title="Toggle Mic">
+                    <i class="fas fa-microphone"></i>
+                </button>
+                <button class="btn-meet" id="camBtn" onclick="toggleCamera()" title="Toggle Camera">
+                    <i class="fas fa-video-slash"></i>
+                </button>
+                <button class="btn-meet" onclick="showSettings()" title="Settings">
+                    <i class="fas fa-cog"></i>
+                </button>
+                <button class="btn-meet" onclick="skipQuestion()" title="Skip Question">
+                    <i class="fas fa-forward"></i>
+                </button>
+            </div>
+
+            <div class="controls-right">
+                <button class="btn-end" onclick="endInterview()">
+                    <i class="fas fa-phone-slash"></i> Leave Interview
+                </button>
+            </div>
+        </footer>
+
+        <!-- Toast Feedback -->
+        <div id="feedbackToast">Good clarity! Keep it up.</div>
+
+        <!-- Settings Quick Menu Overlay -->
+        <div class="settings-overlay" id="settingsMenu">
+            <h3 style="font-size: 1rem; margin-bottom: 5px;">Resources</h3>
+            <p style="font-size: 0.8rem; opacity: 0.6; margin-bottom: 15px;">Switch to other practice tools</p>
+
+            <div class="quick-card">
+                <div class="card-info">
+                    <h4>AI Chatbot</h4>
+                    <p>On-demand coaching</p>
+                </div>
+                <a href="/chatbot" class="btn-try">Try now</a>
+            </div>
+
+            <div class="quick-card">
+                <div class="card-info">
+                    <h4>Aptitude Test</h4>
+                    <p>Logical reasoning</p>
+                </div>
+                <a href="/aptitude" class="btn-try">Try now</a>
+            </div>
+
+            <div class="quick-card">
+                <div class="card-info">
+                    <h4>Debug Challenge</h4>
+                    <p>Code fixing puzzles</p>
+                </div>
+                <a href="/debug_challenge" class="btn-try">Try now</a>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let timerSeconds = 0;
+        let clock;
+        let stt;
+        let isMicOn = false;
+        let isCamOn = false;
+        let isAnalyzing = false;
+        let aiSpeaking = false;
+        let currentQuestionIndex = 1;
+        let userTranscript = "";
+
+        // ⏱ Timer
+        function startTimer() {
+            clock = setInterval(() => {
+                timerSeconds++;
+                let m = String(Math.floor(timerSeconds / 60)).padStart(2, '0');
+                let s = String(timerSeconds % 60).padStart(2, '0');
+                document.getElementById('timer').textContent = `${m}:${s}`;
+            }, 1000);
+        }
+
+        // 📷 Camera Logic
+        async function toggleCamera() {
+            const stage = document.getElementById('stage');
+            const camBtn = document.getElementById('camBtn');
+            const video = document.getElementById('userVideo');
+
+            if (!isCamOn) {
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+                    video.srcObject = stream;
+                    isCamOn = true;
+                    stage.classList.add('camera-active');
+                    camBtn.innerHTML = '<i class="fas fa-video"></i>';
+                    camBtn.classList.add('success');
+                } catch (e) {
+                    console.error("Camera access denied:", e);
+                    triggerFeedback("❌ Camera access denied.");
+                }
+            } else {
+                if (stream) {
+                    stream.getTracks().forEach(track => track.stop());
+                }
+                isCamOn = false;
+                stage.classList.remove('camera-active');
+                camBtn.innerHTML = '<i class="fas fa-video-slash"></i>';
+                camBtn.classList.remove('success');
+            }
+        }
+
+        // 🎤 Microphone & STT logic
+        function setupSTT() {
+            if (!('webkitSpeechRecognition' in window)) {
+                triggerFeedback("⚠️ Speech recognition not supported in this browser.");
+                return;
+            }
+            stt = new webkitSpeechRecognition();
+            stt.continuous = true;
+            stt.interimResults = true;
+            stt.lang = 'en-US'; // Default, but we can refine with navigator.language if needed
+
+            stt.onstart = () => {
+                console.log("STT Active");
+            };
+
+            stt.onresult = (e) => {
+                let interimTranscript = "";
+                const subtitleBox = document.getElementById('aiSubtitle');
+
+                for (let i = e.resultIndex; i < e.results.length; ++i) {
+                    const transcript = e.results[i][0].transcript;
+                    if (e.results[i].isFinal) {
+                        userTranscript += transcript + " ";
+                    } else {
+                        interimTranscript += transcript;
+                    }
+                }
+
+                if (interimTranscript || userTranscript) {
+                    subtitleBox.textContent = userTranscript + interimTranscript;
+                    subtitleBox.classList.add('show', 'user-active');
+                }
+            };
+
+            stt.onerror = (e) => {
+                console.error("STT Error:", e.error);
+                if (e.error === 'network') {
+                    triggerFeedback("⚠️ Microphone network error. Please check your connection.");
+                }
+            };
+
+            stt.onend = () => {
+                // If it ended naturally but we still want it on, restart it
+                if (isMicOn && !isAnalyzing && !aiSpeaking) {
+                    try { stt.start(); } catch(e) {}
+                }
+            };
+        }
+
+        function toggleMic() {
+            if (aiSpeaking) {
+                triggerFeedback("⏳ Please wait for the AI to finish.");
+                return;
+            }
+
+            const micBtn = document.getElementById('micBtn');
+            const waveform = document.getElementById('waveform');
+            const hint = document.getElementById('interactionHint');
+
+            if (!isMicOn) {
+                isMicOn = true;
+                if (!stt) setupSTT();
+                try {
+                    stt.start();
+                } catch (e) { }
+                micBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+                micBtn.classList.add('success');
+                micBtn.classList.remove('highlight');
+                waveform.style.display = 'flex';
+                hint.textContent = "Listening... Toggle to Submit.";
+            } else {
+                isMicOn = false;
+                try { stt.stop(); } catch (e) { }
+                
+                micBtn.innerHTML = '<i class="fas fa-microphone-slash"></i>';
+                micBtn.classList.remove('success');
+                waveform.style.display = 'none';
+                hint.textContent = "Mic Muted";
+                const subtitleBox = document.getElementById('aiSubtitle');
+                subtitleBox.classList.remove('user-active');
+
+                // Auto-submit if user spoke enough
+                const transcript = userTranscript.trim();
+                if (transcript.length > 2) {
+                    finalizeResponse();
+                } else {
+                    userTranscript = ""; 
+                    subtitleBox.classList.remove('show');
+                }
+            }
+        }
+
+        // Auto-submit logic removed as per user preference for manual control via mic toggle
+
+        let activeSpeech = null; // Prevent GC
+        let wordInterval = null;
+
+        // 👵 AI Delivery System
+        function deliverAI(text) {
+            aiSpeaking = true;
+            userTranscript = "";
+            const baseText = text.replace(/\*/g, '').replace(/<[^>]*>?/gm, '');
+            const words = baseText.split(" ");
+
+            const subtitleBox = document.getElementById('aiSubtitle');
+            const aiPanel = document.getElementById('aiPanel');
+            const hint = document.getElementById('interactionHint');
+            const micBtn = document.getElementById('micBtn');
+
+            if (isMicOn) toggleMic();
+
+            subtitleBox.classList.remove('show', 'user-active');
+            hint.textContent = "Coach Sarah is speaking...";
+
+            // Ensure speech system is awake
+            window.speechSynthesis.resume();
+            window.speechSynthesis.cancel();
+            if (wordInterval) clearInterval(wordInterval);
+
+            activeSpeech = new SpeechSynthesisUtterance(baseText);
+            activeSpeech.rate = 1.0;
+            activeSpeech.pitch = 1.0;
+
+            let voices = window.speechSynthesis.getVoices();
+            if (voices.length > 0) {
+                const preferred = voices.find(v => v.name.includes('Samantha') || v.name.includes('Google US English Female') || v.name.includes('Female'));
+                if (preferred) activeSpeech.voice = preferred;
+            }
+
+            activeSpeech.onstart = () => {
+                aiPanel.classList.add('speaking');
+                subtitleBox.textContent = "";
+                subtitleBox.classList.add('show');
+                document.getElementById('qSubject').textContent = baseText.length > 50 ? baseText.substring(0, 50) + "..." : baseText;
+
+                // Sync Text: Start appearing word by word immediately
+                let currentWordIndex = 0;
+                // Average reading speed is ~280ms per word. 
+                // We use a dynamic interval based on text length to stay roughly synced.
+                const totalEstimatedTime = baseText.length * 45; // ~45ms per char (Faster delivery)
+                const wordDelay = Math.min(Math.max(totalEstimatedTime / words.length, 120), 350);
+
+                wordInterval = setInterval(() => {
+                    if (currentWordIndex < words.length) {
+                        currentWordIndex++;
+                        subtitleBox.textContent = words.slice(0, currentWordIndex).join(" ");
+                    } else {
+                        clearInterval(wordInterval);
+                    }
+                }, wordDelay);
+            };
+
+            activeSpeech.onend = () => {
+                if (wordInterval) clearInterval(wordInterval);
+                aiPanel.classList.remove('speaking');
+                subtitleBox.textContent = baseText;
+
+                setTimeout(() => {
+                    subtitleBox.classList.remove('show');
+                    aiSpeaking = false;
+                    hint.textContent = "Your turn: Unmute and speak.";
+                    if (micBtn) micBtn.classList.add('highlight');
+                    activeSpeech = null;
+                }, 1000); // Reduced delay for faster transition
+            };
+
+            activeSpeech.onerror = (e) => {
+                if (wordInterval) clearInterval(wordInterval);
+                console.error("Speech Error:", e);
+                aiSpeaking = false;
+                activeSpeech = null;
+            };
+
+            window.speechSynthesis.speak(activeSpeech);
+        }
+
+
+        function finalizeResponse(isSkip = false) {
+            if (isAnalyzing) return;
+            
+            const transcript = userTranscript.trim();
+            if (!isSkip && transcript.length < 3 && !confirm("No speech detected. Skip this question?")) {
+                return;
+            }
+
+            isAnalyzing = true;
+            userTranscript = ""; // Clear immediately to prevent double triggers
+            
+            // Safety: Ensure mic UI is updated if we were still on
+            if (isMicOn) {
+                isMicOn = false;
+                try { stt.stop(); } catch(e) {}
+                document.getElementById('micBtn').classList.remove('success');
+                document.getElementById('waveform').style.display = 'none';
+                document.getElementById('interactionHint').textContent = "Mic Muted";
+            }
+
+            document.getElementById('analyzingState').style.display = 'flex';
+
+            fetch("/api/interview_chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: userTranscript || "Skip" })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById('analyzingState').style.display = 'none';
+                    isAnalyzing = false;
+
+                    if (data.error === 'rate_limit' || data.error === 'connectivity') {
+                        triggerFeedback("⏳ " + data.reply);
+                        return;
+                    }
+
+                    if (data.is_complete || currentQuestionIndex >= 10) {
+                        currentQuestionIndex = 10;
+                        document.getElementById('qCount').textContent = "10";
+                        deliverAI(data.reply || "Interview complete. Redirecting...");
+                        setTimeout(() => window.location.href = "/result", 3000);
+                    } else {
+                        // Sync with backend count if available
+                        if (data.count) {
+                            currentQuestionIndex = data.count;
+                        } else {
+                            currentQuestionIndex++;
+                        }
+                        document.getElementById('qCount').textContent = currentQuestionIndex;
+                        deliverAI(data.reply);
+                    }
+                })
+                .catch((err) => {
+                    console.error("Fetch Error:", err);
+                    document.getElementById('analyzingState').style.display = 'none';
+                    isAnalyzing = false;
+                    triggerFeedback("❌ Connection issue. Please check your mic and try again.");
+                });
+        }
+
+        function triggerFeedback(msg) {
+            const toast = document.getElementById('feedbackToast');
+            toast.textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        function skipQuestion() {
+            if (aiSpeaking) return;
+            userTranscript = "I'd like to skip this question.";
+            finalizeResponse(true); // Immediate skip without confirmation
+        }
+
+        function endInterview() {
+            if (confirm("Are you sure you want to end the interview? Progress will be lost.")) {
+                window.location.href = "/dashboard";
+            }
+        }
+
+        function showSettings() {
+            const menu = document.getElementById('settingsMenu');
+            menu.classList.toggle('active');
+        }
+
+        function startInterview() {
+            fetch("/api/interview_chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: "" })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.error === 'rate_limit') {
+                        triggerFeedback("⏳ System initialization... retrying in 10s");
+                        setTimeout(startInterview, 10000);
+                    } else {
+                        deliverAI(data.reply);
+                    }
+                })
+                .catch(() => {
+                    setTimeout(startInterview, 5000);
+                });
+        }
+
+        window.onload = () => {
+            startTimer();
+            setupSTT();
+            
+            // Initial call - Instant start!
+            startInterview();
+
+            // Handle voices loading asynchronously
+            window.speechSynthesis.onvoiceschanged = () => {
+                console.log("Voices ready");
+            };
+        };
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aptitude Assessment | GradVox</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #020617;
+      --card-bg: rgba(15, 23, 42, 0.7);
+      --primary: #00f7ff;
+      --secondary: #8b5cf6;
+      --accent: #ffd700;
+      --text: #f8fafc;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-bottom: 80px;
+    }
+
+    /* Ambient Background */
+    .bg-glow {
+      position: fixed;
+      width: 800px; height: 800px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0, 247, 255, 0.05), transparent 70%);
+      top: -300px; right: -300px;
+      z-index: -1;
+    }
+
+    /* Test Header & Timer */
+    .test-header {
+      width: 100%;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(2, 6, 23, 0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(0, 247, 255, 0.2);
+      padding: 15px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .test-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.5rem;
+      color: var(--accent);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .timer-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(139, 92, 246, 0.1);
+      padding: 8px 18px;
+      border-radius: 30px;
+      border: 1px solid rgba(139, 92, 246, 0.3);
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .timer-icon { font-size: 20px; }
+
+    /* Container */
+    .test-container {
+      width: 100%;
+      max-width: 850px;
+      margin-top: 40px;
+      padding: 0 20px;
+    }
+
+    /* Question Cards */
+    .question-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 30px;
+      margin-bottom: 25px;
+      transition: 0.3s;
+    }
+
+    .question-card:hover {
+      border-color: rgba(0, 247, 255, 0.3);
+      box-shadow: 0 0 20px rgba(0, 247, 255, 0.1);
+    }
+
+    .q-number {
+      display: inline-block;
+      padding: 4px 12px;
+      background: var(--secondary);
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 15px;
+    }
+
+    .q-text {
+      font-size: 1.15rem;
+      font-weight: 600;
+      line-height: 1.6;
+      margin-bottom: 25px;
+      color: #f1f5f9;
+    }
+
+    /* Options Styling */
+    .options-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .option-label {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 14px 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      transition: all 0.2s ease;
+      font-size: 1rem;
+    }
+
+    .option-label:hover {
+      background: rgba(139, 92, 246, 0.1);
+      border-color: rgba(139, 92, 246, 0.4);
+    }
+
+    input[type="radio"] {
+      appearance: none;
+      width: 20px; height: 20px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      cursor: pointer;
+      position: relative;
+      transition: 0.2s;
+    }
+
+    input[type="radio"]:checked {
+      border-color: var(--primary);
+      background: var(--primary);
+    }
+
+    input[type="radio"]:checked::after {
+      content: "";
+      position: absolute;
+      width: 8px; height: 8px;
+      background: var(--bg);
+      border-radius: 50%;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .option-label:has(input:checked) {
+      background: rgba(0, 247, 255, 0.08);
+      border-color: var(--primary);
+      box-shadow: 0 0 15px rgba(0, 247, 255, 0.1);
+    }
+
+    /* Submit Button */
+    .btn-submit {
+      display: block;
+      width: 100%;
+      padding: 18px;
+      margin-top: 40px;
+      border: none;
+      border-radius: 16px;
+      background: linear-gradient(135deg, var(--accent), #eab308);
+      color: var(--bg);
+      font-size: 1.2rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: 0.3s;
+      box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+    }
+
+    .btn-submit:hover {
+      transform: translateY(-4px);
+      filter: brightness(1.1);
+      box-shadow: 0 0 40px rgba(255, 215, 0, 0.5);
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .test-header { padding: 12px 20px; }
+      .test-title { font-size: 1.1rem; }
+      .timer-container { padding: 6px 14px; font-size: 0.9rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-glow"></div>
+
+  <header class="test-header">
+    <div class="test-title">Aptitude Assessment</div>
+    <div class="timer-container">
+      <span class="timer-icon">⏳</span>
+      <span id="time">30:00</span>
+    </div>
+  </header>
+
+  <main class="test-container">
+    <form id="testForm" action="/submit_test" method="post">
+      {% for q in questions %}
+      <div class="question-card">
+        <span class="q-number">Question {{ loop.index }}</span>
+        <p class="q-text">{{ q.question }}</p>
+        
+        <div class="options-grid">
+          <label class="option-label">
+            <input type="radio" name="q{{ loop.index }}" value="A">
+            <span>{{ q.A }}</span>
+          </label>
+          <label class="option-label">
+            <input type="radio" name="q{{ loop.index }}" value="B">
+            <span>{{ q.B }}</span>
+          </label>
+          <label class="option-label">
+            <input type="radio" name="q{{ loop.index }}" value="C">
+            <span>{{ q.C }}</span>
+          </label>
+          <label class="option-label">
+            <input type="radio" name="q{{ loop.index }}" value="D">
+            <span>{{ q.D }}</span>
+          </label>
+        </div>
+      </div>
+      {% endfor %}
+
+      <button type="submit" class="btn-submit">Finalize Assessment</button>
+    </form>
+  </main>
+
+  <script>
+    let time = 1800;
+    const testForm = document.getElementById("testForm");
+    const timerDisplay = document.getElementById("time");
+
+    const timer = setInterval(() => {
+      let m = Math.floor(time / 60);
+      let s = time % 60;
+      timerDisplay.innerHTML = `${m}:${s < 10 ? '0' : ''}${s}`;
+      
+      if (time <= 300) { // Urgent color for last 5 mins
+        timerDisplay.parentElement.style.color = "#f87171";
+        timerDisplay.parentElement.style.borderColor = "#f87171";
+      }
+
+      if (time <= 0) {
+        clearInterval(timer);
+        testForm.submit();
+      }
+      time--;
+    }, 1000);
+  </script>
+</body>
+</html>
