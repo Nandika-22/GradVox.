@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>GradVox Analytics</title>
+
+    <link rel="stylesheet" href="/static/style.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>Performance Analytics</h1>
+
+        <p>Average Score: {{avg_score}}</p>
+
+        <div style="width: 100%; max-width: 800px; margin: 40px auto; background: rgba(255,255,255,0.05); padding: 20px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1);">
+            <canvas id="scoreChart"></canvas>
+        </div>
+
+        <br>
+
+        <a href="/dashboard">
+            <button>Back to Dashboard</button>
+        </a>
+
+    </div>
+
+    <script>
+
+        const scores = JSON.parse('{{ scores | tojson | safe }}');
+
+        new Chart(document.getElementById("scoreChart"), {
+
+            type: "line",
+
+            data: {
+                labels: scores.map((_, i) => "Attempt " + (i + 1)),
+                datasets: [{
+                    label: "Interview Score",
+                    data: scores
+                }]
+            },
+
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+
+        });
+
+    </script>
+
+</body>
+
+</html>

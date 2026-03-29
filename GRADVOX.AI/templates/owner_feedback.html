@@ -1,0 +1,21 @@
+<h1>GradVox User Feedback</h1>
+
+<table border="1">
+
+<tr>
+<th>Name</th>
+<th>Rating</th>
+<th>Feedback</th>
+</tr>
+
+{% for row in data %}
+
+<tr>
+<td>{{row[0]}}</td>
+<td>{{row[1]}}</td>
+<td>{{row[2]}}</td>
+</tr>
+
+{% endfor %}
+
+</table>
